@@ -1,0 +1,37 @@
+services:
+  backend:
+    image: backend-innovatech
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend-innovatech
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - mysql-db
+    networks:
+      - innovatech-network
+
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-innovatech
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: innovatech_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - innovatech-network
+
+volumes:
+  mysql_data:
+
+networks:
+  innovatech-network:
+    driver: bridge

@@ -1,4 +1,4 @@
-name: Build and Push Backend Ventas
+name: Build Push and Deploy Backend Ventas
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - deploy
 
 jobs:
-  build-and-push:
+  build-push-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,3 +24,15 @@ jobs:
 
       - name: Publicar imagen en Docker Hub
         run: docker push lucastupai/innovatech-backend-ventas:latest
+
+      - name: Desplegar en EC2 Backend
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/innovatech-backend
+            docker pull lucastupai/innovatech-backend-ventas:latest
+            docker-compose up -d backend-ventas
+            docker image prune -f
